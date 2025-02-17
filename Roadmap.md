@@ -10,7 +10,7 @@
 ---
 
 ## 🚀 2️⃣ Core Gameplay Mechanics (In Progress)
-🔲 Implement Dice Rolling (`!roll d20`) – Needed for skill checks and combat.  
+✔️ Implement Dice Rolling (`!roll d20`) – Needed for skill checks and combat.  
 🔲 Implement Player Choices (`!choose 1/2/3`) – Allows branching adventures.  
 🔲 Track Player Stats (`!register, !stats`) – Foundation for decision impact & scaling difficulty.  
 

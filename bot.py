@@ -68,5 +68,18 @@ async def on_message(message):
         # Send the Scenario Response
         await message.channel.send(f"📝 **Adventure Hook:**\n{scenario}")
 
+@client.event
+async def on_message(message):
+    if message.author == client.user:
+        return  # Ignore bot's own messages
+
+    if message.content.startswith("!adventure"):
+        # Existing adventure command
+        pass  
+
+    elif message.content.startswith("!roll d20"):
+        roll = random.randint(1, 20)  # Generate a random number between 1 and 20
+        await message.channel.send(f"🎲 You rolled a **{roll}** (1d20)!")
+        
 # Run the bot
 client.run(DISCORD_TOKEN)
