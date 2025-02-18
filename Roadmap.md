@@ -10,35 +10,35 @@
 ---
 
 ## 🚀 2️⃣ Core Gameplay Mechanics (In Progress)
-✔️ Implement Dice Rolling (`!roll d20`) – Needed for skill checks and combat.  
-🔲 Implement Player Choices (`!choose 1/2/3`) – Allows branching adventures.  
-🔲 Track Player Stats (`!register, !stats`) – Foundation for decision impact & scaling difficulty.  
+🔲 Implement Character Stats (!register, !stats) – Track Strength, Intelligence, Dexterity, etc.
+🔲 Modify !choose to Use Dice Rolls (!roll d20) – Players roll for success/failure based on their stats.
+🔲 AI-Driven Success/Failure Outcomes – AI tailors responses based on roll results. 
 
 ---
 
-## 🧠 3️⃣ Intelligent Decision Tracking & Persistence
-🔲 Basic Decision Tracking – Store past adventure choices in a simple JSON file.  
-🔲 Transition to a Database (SQLite/PostgreSQL) – Allow long-term memory of choices & stats.  
-🔲 Persistent World Mechanics – Make past decisions influence future AI-generated adventures.  
+## 🎲 3️⃣ AI & Mechanics Integration
+🔲 AI generates scenarios and choices dynamically.
+🔲 Players choose (!choose 1/2/3), triggering a dice roll (!roll d20).
+🔲 Character stats modify rolls (e.g., Strength affects combat rolls).
+🔲 AI determines outcomes based on roll success/failure.
 
 ---
 
-## 🛠 4️⃣ AI-Enhanced Gameplay Features
-🔲 Interactive NPCs – Introduce pre-defined AI personalities (e.g., grumpy warrior, wise scholar).  
-🔲 Memory System – NPCs remember past player interactions.  
-🔲 AI-Powered Task Optimization – Allow AI to balance difficulty dynamically based on past choices.  
+## 🛠 4️⃣ Advanced Character Progression & Memory
+🔲 Implement XP & Leveling – Players improve stats over time.
+🔲 Track player decisions and apply them to future encounters.
+🔲 Persistent World Mechanics – Past choices shape future AI-generated adventures. 
 
 ---
 
 ## 📊 5️⃣ Data Visualization & Analytics
-🔲 Adventure Trend Tracking – Log player choices to analyze common play styles.  
-🔲 Decision Pathways & Encounter Data – Store & visualize stats using Power BI or Python dashboards.  
-🔲 Power BI Integration (Stretch Goal) – Create a real-time dashboard to analyze in-game data.  
+🔲 Track player choices, dice rolls, and adventure outcomes.
+🔲 Develop basic stat dashboards (Power BI, Grafana, or Python-based tracking).
+🔲 Monitor game balance and difficulty scaling trends.
 
 ---
 
 ## 🔗 6️⃣ Final Features & Testing
-🔲 Beta Testing with Multiple Users – Gather feedback & adjust mechanics.  
-🔲 Refine OpenAI Prompts for Better Storytelling – Fine-tune adventure generation quality.  
-🔲 Optimize Performance & Final API Cost Review – Ensure sustainable long-term usage.  
-🔲 Final Documentation & Deployment – Wrap up guides for public use.  
+🔲 Beta Testing with Multiple Users – Gather feedback & refine mechanics.
+🔲 Optimize API Usage & Costs – Ensure long-term sustainability.
+🔲 Final Documentation & Public Release – Wrap up guides for new users & contributors.
