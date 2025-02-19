@@ -75,7 +75,7 @@ async def on_message(message):
         await message.channel.send(f"{message.author.mention}, you have been registered! Use `!stats` to view your attributes.")
 
     # 📜 VIEW STATS - !stats
-    if message.content.startswith("!stats"):
+    elif message.content.startswith("!stats"):
         user_id = str(message.author.id)
 
         if user_id not in player_stats:
@@ -85,13 +85,13 @@ async def on_message(message):
         stats = player_stats[user_id]
         stats_message = (
             f"📜 **{message.author.name}'s Stats:**\n"
-            f"💪 Strength: {stats.get('Strength', 'N/A')}\n"
-            f"🏹 Dexterity: {stats.get('Dexterity', 'N/A')}\n"
-            f"🧠 Intelligence: {stats.get('Intelligence', 'N/A')}\n"
-            f"❤️ HP: {stats.get('HP', 'N/A')}"
+            f"💪 Strength: {stats.get('Strength', 10)}\n"
+            f"🏹 Dexterity: {stats.get('Dexterity', 10)}\n"
+            f"🧠 Intelligence: {stats.get('Intelligence', 10)}\n"
+            f"❤️ HP: {stats.get('HP', 100)}"
         )
     
-    await message.channel.send(stats_message)
+        await message.channel.send(stats_message)
     
     # 🎲 DICE ROLL - !roll d20
     if message.content.startswith("!roll d20"):
@@ -160,7 +160,15 @@ async def on_message(message):
         choice = message.content.split(" ")[1] if len(message.content.split()) > 1 else None
 
         if choice in current_choices[user_id]:
-            await message.channel.send(f"🔮 You chose: {current_choices[user_id][choice]}")
+            chosen_action = current_choices[user_id][choice]
+
+            # ✅ Store the player's choice history
+            if user_id not in player_stats:
+                player_stats[user_id] = {"strength": 10, "dexterity": 10, "intelligence": 10, "hp": 100, "history": []}
+            player_stats[user_id]["history"].append(chosen_action)  # Append choice
+            save_players()  # Persist data
+
+            await message.channel.send(f"🔮 You chose: {chosen_action}")
         else:
             await message.channel.send("❓ Please choose a valid option: `!choose 1`, `!choose 2`, or `!choose 3`.")
 
