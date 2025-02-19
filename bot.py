@@ -111,9 +111,13 @@ async def on_message(message):
                 return
 
         # Extract the scenario and choices dynamically
-        scenario_lines = scenario.split("\n")
-        adventure_text = "\n".join(scenario_lines[:-3])  # Assume choices are in the last 3 lines
+        scenario_lines = [line.strip() for line in scenario.split("\n") if line.strip()]  # Remove blank lines
+        adventure_text = "\n".join(scenario_lines[:-3])  # Keep everything except the last 3 lines
         choices = scenario_lines[-3:]
+
+        # Clean up choices to ensure they start correctly
+        choices = [choice.lstrip("123. ") for choice in choices] 
+
         choice_dict = {str(i + 1): choice for i, choice in enumerate(choices)}
         current_choices[user_id] = choice_dict  # Store choices for this player
 
