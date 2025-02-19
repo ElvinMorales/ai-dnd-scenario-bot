@@ -20,6 +20,7 @@
 🔲 Modify `!choose` to factor in **dice rolls** before resolving the outcome.  
 🔲 Apply **player stats bonuses** to dice rolls (e.g., Strength affects combat).  
 🔲 Implement **Basic Decision Tracking** – Store past choices to influence future scenarios.  
+🔲 Implement **Adventure Continuity** – Allow past choices to persist across multiple play sessions.  
 
 ---
 
@@ -27,6 +28,7 @@
 🔲 Interactive NPCs – Introduce pre-defined AI personalities (e.g., grumpy warrior, wise scholar).  
 🔲 Memory System – NPCs remember past player interactions.  
 🔲 AI-Powered Task Optimization – Allow AI to balance difficulty dynamically based on past choices.  
+🔲 Dynamic Encounter Scaling – AI modifies challenge difficulty based on player performance.  
 
 ---
 
