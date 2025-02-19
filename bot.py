@@ -20,7 +20,26 @@ intents.message_content = True  # Required to read messages
 client = discord.Client(intents=intents)
 
 # Cooldown & Response Cache
-cooldowns = {}
+import time
+
+cooldowns = {}  # Track cooldowns per user & command
+
+def is_on_cooldown(user_id, command, cooldown_time):
+    """Checks if a user is on cooldown for a specific command."""
+    now = time.time()
+    if user_id in cooldowns and command in cooldowns[user_id]:
+        remaining = cooldowns[user_id][command] - now
+        if remaining > 0:
+            return round(remaining)  # Return remaining cooldown time
+    return None  # No cooldown
+
+def set_cooldown(user_id, command, cooldown_time):
+    """Sets a cooldown for a specific user and command."""
+    now = time.time()
+    if user_id not in cooldowns:
+        cooldowns[user_id] = {}
+    cooldowns[user_id][command] = now + cooldown_time
+
 scenario_cache = []
 current_choices = {}  # Stores choices for current adventure
 player_stats = {}  # Stores player stats
@@ -95,16 +114,32 @@ async def on_message(message):
     
     # 🎲 DICE ROLL - !roll d20
     if message.content.startswith("!roll d20"):
+
+        # Cooldown System (Prevents spam)
+        cooldown_time = 3  # 3-second cooldown for !roll d20
+        remaining = is_on_cooldown(user_id, "!roll", cooldown_time)
+
+        if remaining:
+            await message.channel.send(f"⏳ You must wait {remaining} seconds before rolling again.")
+            return
+
+        set_cooldown(user_id, "!roll", cooldown_time)
+
         roll = random.randint(1, 20)  # Generate a random number between 1 and 20
         await message.channel.send(f"🎲 You rolled a **{roll}** (1d20)!")
 
     # 🏰 ADVENTURE GENERATION - !adventure
     if message.content.startswith("!adventure"):
         # Cooldown System (Prevents spam)
-        if user_id in cooldowns and cooldowns[user_id] > asyncio.get_event_loop().time():
-            await message.channel.send("⏳ Please wait a few seconds before requesting another adventure.")
+        cooldown_time = 10  # 10-second cooldown for !adventure
+        remaining = is_on_cooldown(user_id, "!adventure", cooldown_time)
+
+        if remaining:
+            await message.channel.send(f"⏳ You must wait {remaining} seconds before using `!adventure` again.")
             return
-        cooldowns[user_id] = asyncio.get_event_loop().time() + 10  # 10-second cooldown
+
+        set_cooldown(user_id, "!adventure", cooldown_time)
+
 
         # Use Cached Response If Available
         if scenario_cache:
@@ -153,6 +188,17 @@ async def on_message(message):
 
     # 🚀 PLAYER MAKES A CHOICE - !choose 1/2/3
     elif message.content.startswith("!choose"):
+
+        # Cooldown System (Prevents spam)
+        cooldown_time = 5  # 5-second cooldown for !choose
+        remaining = is_on_cooldown(user_id, "!choose", cooldown_time)
+
+        if remaining:
+            await message.channel.send(f"⏳ You must wait {remaining} seconds before making another choice.")
+            return
+
+        set_cooldown(user_id, "!choose", cooldown_time)
+
         if user_id not in current_choices:
             await message.channel.send("❌ No active adventure! Use `!adventure` first.")
             return
