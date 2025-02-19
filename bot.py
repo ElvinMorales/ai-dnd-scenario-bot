@@ -1,3 +1,4 @@
+import json
 import os
 import discord
 import asyncio
@@ -23,6 +24,24 @@ cooldowns = {}
 scenario_cache = []
 current_choices = {}  # Stores choices for current adventure
 player_stats = {}  # Stores player stats
+PLAYER_FILE = "players.json"
+
+# Function to save player stats to a file
+def save_players():
+    with open(PLAYER_FILE, "w") as f:
+        json.dump(player_stats, f)
+
+# Function to load player stats from a file
+def load_players():
+    global player_stats
+    if os.path.exists(PLAYER_FILE):
+        with open(PLAYER_FILE, "r") as f:
+            player_stats = json.load(f)
+    else:
+        player_stats = {}
+
+# Load player data when the bot starts
+load_players()
 
 @client.event
 async def on_ready():
@@ -37,48 +56,50 @@ async def on_message(message):
 
     # 📜 PLAYER REGISTRATION - !register
     if message.content.startswith("!register"):
+        user_id = str(message.author.id)
+
         if user_id in player_stats:
             await message.channel.send("✅ You are already registered! Use `!stats` to view your stats.")
             return
 
-        # Generate random stats (later we can allow customization)
+        # Generate random stats
         player_stats[user_id] = {
             "Strength": random.randint(1, 20),
             "Dexterity": random.randint(1, 20),
             "Intelligence": random.randint(1, 20),
-            "HP": 100
+            "HP": 100,
+            "history": []
         }
+        save_players()
 
-        await message.channel.send(
-            f"🎭 **Character Registered!**\n"
-            f"💪 Strength: {player_stats[user_id]['Strength']}\n"
-            f"🏃 Dexterity: {player_stats[user_id]['Dexterity']}\n"
-            f"🧠 Intelligence: {player_stats[user_id]['Intelligence']}\n"
-            f"❤️ HP: {player_stats[user_id]['HP']}"
-        )
-    
+        await message.channel.send(f"{message.author.mention}, you have been registered! Use `!stats` to view your attributes.")
+
     # 📜 VIEW STATS - !stats
-    elif message.content.startswith("!stats"):
+    if message.content.startswith("!stats"):
+        user_id = str(message.author.id)
+
         if user_id not in player_stats:
             await message.channel.send("❌ You are not registered! Use `!register` to create a character.")
             return
         
         stats = player_stats[user_id]
-        await message.channel.send(
-            f"📜 **Your Stats:**\n"
-            f"💪 Strength: {stats['Strength']}\n"
-            f"🏃 Dexterity: {stats['Dexterity']}\n"
-            f"🧠 Intelligence: {stats['Intelligence']}\n"
-            f"❤️ HP: {stats['HP']}"
+        stats_message = (
+            f"📜 **{message.author.name}'s Stats:**\n"
+            f"💪 Strength: {stats.get('Strength', 'N/A')}\n"
+            f"🏹 Dexterity: {stats.get('Dexterity', 'N/A')}\n"
+            f"🧠 Intelligence: {stats.get('Intelligence', 'N/A')}\n"
+            f"❤️ HP: {stats.get('HP', 'N/A')}"
         )
-
+    
+    await message.channel.send(stats_message)
+    
     # 🎲 DICE ROLL - !roll d20
-    elif message.content.startswith("!roll d20"):
+    if message.content.startswith("!roll d20"):
         roll = random.randint(1, 20)  # Generate a random number between 1 and 20
         await message.channel.send(f"🎲 You rolled a **{roll}** (1d20)!")
 
     # 🏰 ADVENTURE GENERATION - !adventure
-    elif message.content.startswith("!adventure"):
+    if message.content.startswith("!adventure"):
         # Cooldown System (Prevents spam)
         if user_id in cooldowns and cooldowns[user_id] > asyncio.get_event_loop().time():
             await message.channel.send("⏳ Please wait a few seconds before requesting another adventure.")
