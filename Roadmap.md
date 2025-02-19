@@ -25,6 +25,7 @@ An AI-powered Discord bot that generates dynamic D&D adventure scenarios and all
 ✔️ Implemented a `!roll d20` command for dice rolls  
 ✔️ Fixed bugs related to Discord token recognition and player tracking  
 ✔️ Ensured choices are stored properly and verified `!stats` and `!choose` commands function correctly  
+✔️ Implemented cooldown system for `!adventure`, `!choose`, and `!roll` commands
 
 ---
 
