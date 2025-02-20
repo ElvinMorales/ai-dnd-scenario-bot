@@ -40,7 +40,8 @@ def set_cooldown(user_id, command, cooldown_time):
         cooldowns[user_id] = {}
     cooldowns[user_id][command] = now + cooldown_time
 
-scenario_cache = []
+scenario_cache = {}  # Stores AI-generated adventures along with timestamps
+CACHE_EXPIRY_TIME = 300  # Cache expires after 300 seconds (5 minutes)
 current_choices = {}  # Stores choices for current adventure
 player_stats = {}  # Stores player stats
 PLAYER_FILE = "players.json"
@@ -129,7 +130,9 @@ async def on_message(message):
         await message.channel.send(f"🎲 You rolled a **{roll}** (1d20)!")
 
     # 🏰 ADVENTURE GENERATION - !adventure
-    if message.content.startswith("!adventure"):
+    elif message.content.startswith("!adventure"):
+        user_id = str(message.author.id)
+        
         # Cooldown System (Prevents spam)
         cooldown_time = 10  # 10-second cooldown for !adventure
         remaining = is_on_cooldown(user_id, "!adventure", cooldown_time)
@@ -141,48 +144,80 @@ async def on_message(message):
         set_cooldown(user_id, "!adventure", cooldown_time)
 
 
-        # Use Cached Response If Available
-        if scenario_cache:
-            scenario = random.choice(scenario_cache)
-        else:
-            try:
-                response = client_ai.chat.completions.create(
-                    model="gpt-3.5-turbo",  # Lower cost model
-                    messages=[
-                        {"role": "system", "content": "You are a Dungeon Master. Generate a BRIEF D&D adventure hook with a challenge and three choices."},
-                        {"role": "user", "content": "Generate a new adventure hook with three distinct choices."}
-                    ],
-                    temperature=0.7  # Balanced randomness
+        # Check if a cached scenario exists and is still valid
+        current_time = time.time()
+        if user_id in scenario_cache:
+            cached_entry = scenario_cache[user_id]
+            if (current_time - cached_entry["timestamp"]) < CACHE_EXPIRY_TIME:
+                # Retrieve cached adventure data
+                adventure_text = cached_entry["adventure_text"]
+                choices = cached_entry["choices"] # Choices were stored in a list format
+
+                # **Fix Choice Formatting when Reusing Cache**
+                choice_dict = {str(i + 1): choices[i] for i in range(len(choices))}
+                current_choices[user_id] = choice_dict  # Ensure choices are properly tracked
+
+                formatted_choices = "\n".join([f"{i+1}️⃣ {choices[i]}" for i in range(len(choices))])
+
+                adventure_message = (
+                    f"♻️ Using a recent adventure:\n\n"
+                    f"📜 **Adventure Hook:**\n{adventure_text}\n\n"
+                    f"⚔️ **Choices:**\n"
+                    f"{formatted_choices}\n\n"
+                    f"Use `!choose 1`, `!choose 2`, or `!choose 3` to decide your action!"
                 )
-                scenario = response.choices[0].message.content
-                scenario_cache.append(scenario)  # Store in cache
 
-                # Limit Cache Size to Avoid Memory Overload
-                if len(scenario_cache) > 5:
-                    scenario_cache.pop(0)
+                await message.channel.send(adventure_message)
+                return # Stop here if using cache
+            else:
+                # Cache expired, remove it
+                del scenario_cache[user_id]
+        
+        # Otherwise, generate a new adventure
+        await message.channel.send("🎲 Generating a new adventure... please wait!")
+        
+        try:
+            prompt = "Generate a short D&D adventure hook with three choices."
+            response = client_ai.chat.completions.create(
+                model="gpt-3.5-turbo",
+                messages=[{"role": "system", "content": prompt}]
+            )
 
-            except Exception as e:
-                print(f"❌ Error with OpenAI API: {e}")
-                await message.channel.send("⚠️ Error generating adventure. Please try again later.")
-                return
+            scenario = response.choices[0].message.content.strip()
 
-        # Extract the scenario and choices dynamically
-        scenario_lines = [line.strip() for line in scenario.split("\n") if line.strip()]  # Remove blank lines
-        adventure_text = "\n".join(scenario_lines[:-3])  # Keep everything except the last 3 lines
-        choices = scenario_lines[-3:]
+        except Exception as e:
+            print(f"❌ Error with OpenAI API: {e}")
+            await message.channel.send("⚠️ Error generating adventure. Please try again later.")
+            return
 
-        # Clean up choices to ensure they start correctly
-        choices = [choice.lstrip("123. ") for choice in choices] 
+        # Format the scenario and choices
+        scenario_lines = scenario.split("\n")
+        adventure_text = "\n".join(scenario_lines[:-3])  # Extract adventure description
+        choices = scenario_lines[-3:]  # Extract choices
 
+        # Store formatted choices in a dictionary
         choice_dict = {str(i + 1): choice for i, choice in enumerate(choices)}
-        current_choices[user_id] = choice_dict  # Store choices for this player
+        current_choices[user_id] = choice_dict  # Save choices for the player
 
-        adventure_message = f"📝 **Adventure Hook:**\n{adventure_text}\n\n" \
-                            f"⚔️ Choices:\n" \
-                            f"1️⃣ {choices[0]}\n" \
-                            f"2️⃣ {choices[1]}\n" \
-                            f"3️⃣ {choices[2]}\n\n" \
-                            f"Use `!choose 1`, `!choose 2`, or `!choose 3` to decide your action!"
+        adventure_message = (
+            f"📜 **Adventure Hook:**\n{adventure_text}\n\n"
+            f"⚔️ **Choices:**\n"
+            f"1️⃣ {choices[0]}\n"
+            f"2️⃣ {choices[1]}\n"
+            f"3️⃣ {choices[2]}\n\n"
+            f"Use `!choose 1`, `!choose 2`, or `!choose 3` to decide your action!"
+        )
+
+        # Store formatted choices in a dictionary
+        choice_dict = {str(i + 1): choice for i, choice in enumerate(choices)}
+        current_choices[user_id] = choice_dict  # Save choices for the player
+
+        # **Update Cache with Expiration**
+        scenario_cache[user_id] = {
+            "adventure_text": adventure_text,  # Store adventure description
+            "choices": choices,  # Store choices separately
+            "timestamp": current_time
+        }
 
         await message.channel.send(adventure_message)
 
