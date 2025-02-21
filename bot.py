@@ -3,6 +3,7 @@ import os
 import discord
 import asyncio
 import random
+import re
 from openai import OpenAI
 from dotenv import load_dotenv
 
@@ -13,6 +14,20 @@ OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
 
 # Initialize OpenAI Client
 client_ai = OpenAI(api_key=OPENAI_API_KEY)  # New API structure
+def generate_ai_response(prompt, model="gpt-3.5-turbo"):
+    """Generate AI response using the selected model (default: GPT-3.5-Turbo)."""
+    try:
+        response = client_ai.chat.completions.create(
+            model=model,
+            messages=[{"role": "system", "content": "You are a Dungeon Master generating D&D content."},
+                      {"role": "user", "content": prompt}],
+            temperature=0.8
+        )
+        return response.choices[0].message.content.strip()
+    except Exception as e:
+        print(f"❌ Error with OpenAI API: {e}")
+        return "⚠️ AI response error. Try again later."
+
 
 # Set up Discord bot with intents
 intents = discord.Intents.default()
@@ -176,53 +191,62 @@ async def on_message(message):
         # Otherwise, generate a new adventure
         await message.channel.send("🎲 Generating a new adventure... please wait!")
         
-        try:
-            prompt = "Generate a short D&D adventure hook with three choices."
-            response = client_ai.chat.completions.create(
-                model="gpt-3.5-turbo",
-                messages=[{"role": "system", "content": prompt}]
-            )
-
-            scenario = response.choices[0].message.content.strip()
-
-        except Exception as e:
-            print(f"❌ Error with OpenAI API: {e}")
-            await message.channel.send("⚠️ Error generating adventure. Please try again later.")
-            return
+        prompt = "Generate a short D&D adventure hook with three choices."
+        scenario = generate_ai_response(prompt, model="gpt-3.5-turbo")
 
         # Format the scenario and choices
         scenario_lines = scenario.split("\n")
-        adventure_text = "\n".join(scenario_lines[:-3])  # Extract adventure description
-        choices = scenario_lines[-3:]  # Extract choices
+        adventure_text = []
+        extracted_choices = []
 
-        # Store formatted choices in a dictionary
-        choice_dict = {str(i + 1): choice for i, choice in enumerate(choices)}
-        current_choices[user_id] = choice_dict  # Save choices for the player
+        # Detects numbered choices formatted as "1. ", "2. ", "3. " etc.
+        choice_pattern = re.compile(r"^\d+\.\s*(.*)")
+
+        for line in scenario_lines:
+            match = choice_pattern.match(line.strip())
+            if match:
+                extracted_choices.append(match.group(1).strip())
+            else:
+                adventure_text.append(line.strip())
+
+        # Debugging: Print extracted choices
+        print(f"DEBUG: Extracted Choices: {extracted_choices}")
+        print(f"DEBUG: current_choices before assignment: {current_choices}")
+
+        # Join adventure text while ensuring blank lines remain correct
+        adventure_text = "\n".join(adventure_text).strip()
+
+        # Store choices in a user-specific dictionary
+        choice_dict = {}
+        for i, choice in enumerate(extracted_choices, 1):
+            if choice:  # Ensure it's not an empty string
+                choice_dict[str(i)] = choice
+        current_choices[user_id] = choice_dict
+
+        formatted_choices = "\n".join([f"{i}️⃣ **{choice}**" for i, choice in enumerate(extracted_choices, 1)])
 
         adventure_message = (
             f"📜 **Adventure Hook:**\n{adventure_text}\n\n"
-            f"⚔️ **Choices:**\n"
-            f"1️⃣ {choices[0]}\n"
-            f"2️⃣ {choices[1]}\n"
-            f"3️⃣ {choices[2]}\n\n"
+            f"⚔️ **Choices:**\n{formatted_choices}\n\n"
             f"Use `!choose 1`, `!choose 2`, or `!choose 3` to decide your action!"
         )
-
-        # Store formatted choices in a dictionary
-        choice_dict = {str(i + 1): choice for i, choice in enumerate(choices)}
-        current_choices[user_id] = choice_dict  # Save choices for the player
 
         # **Update Cache with Expiration**
         scenario_cache[user_id] = {
             "adventure_text": adventure_text,  # Store adventure description
-            "choices": choices,  # Store choices separately
+            "choices": extracted_choices,  # Store choices separately
             "timestamp": current_time
         }
 
         await message.channel.send(adventure_message)
 
     # 🚀 PLAYER MAKES A CHOICE - !choose 1/2/3
+    
     elif message.content.startswith("!choose"):
+        user_id = str(message.author.id)  # Ensure consistency
+
+        print(f"DEBUG: current_choices: {current_choices}")
+        print(f"DEBUG: current_choices[{user_id}]: {current_choices.get(user_id, 'Not Found')}")
 
         # Cooldown System (Prevents spam)
         cooldown_time = 5  # 5-second cooldown for !choose
@@ -238,10 +262,13 @@ async def on_message(message):
             await message.channel.send("❌ No active adventure! Use `!adventure` first.")
             return
 
-        choice = message.content.split(" ")[1] if len(message.content.split()) > 1 else None
+        choice = str(message.content.split(" ")[1]) if len(message.content.split()) > 1 else None
+        print(f"DEBUG: current_choices[{user_id}] = {current_choices.get(user_id, 'Not Found')}")
 
         if choice in current_choices[user_id]:
+            
             chosen_action = current_choices[user_id][choice]
+            print(f"DEBUG: chosen_action before sending: {chosen_action}")
 
             # ✅ Store the player's choice history
             if user_id not in player_stats:
@@ -249,7 +276,18 @@ async def on_message(message):
             player_stats[user_id]["history"].append(chosen_action)  # Append choice
             save_players()  # Persist data
 
-            await message.channel.send(f"🔮 You chose: {chosen_action}")
+            # 🎲 Modify outcome based on dice roll and stats using GPT-4
+            dice_result = random.randint(1, 20)
+            prompt = f"""
+            The player has chosen: {chosen_action}.
+            Their d20 roll result was {dice_result}.
+            Given the adventure context, generate a dynamic outcome based on this result.
+            """
+
+            outcome = generate_ai_response(prompt, model="gpt-4")
+
+
+            await message.channel.send(f"🔮 You chose: {chosen_action}\n🎲 Your roll: {dice_result}\n📝 **Outcome:** {outcome}")
         else:
             await message.channel.send("❓ Please choose a valid option: `!choose 1`, `!choose 2`, or `!choose 3`.")
 

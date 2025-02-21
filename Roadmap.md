@@ -30,8 +30,8 @@ An AI-powered Discord bot that generates dynamic D&D adventure scenarios and all
 ---
 
 ## 🚀 3️⃣ Intelligent Decision Tracking & Persistence (In Progress)
-🔲 Implement rate-limiting and caching to optimize API calls and reduce quota usage  
-🔲 Modify `!choose` to factor in **dice rolls** before resolving the outcome  
+✔️ Implement rate-limiting and caching to optimize API calls and reduce quota usage  
+✔️ Modify `!choose` to factor in **dice rolls** before resolving the outcome  
 🔲 Apply **player stats bonuses** to dice rolls (e.g., Strength affects combat)  
 🔲 Implement **Basic Decision Tracking** – Store past choices to influence future scenarios  
 🔲 Implement **Adventure Continuity** – Allow past choices to persist across multiple play sessions  
