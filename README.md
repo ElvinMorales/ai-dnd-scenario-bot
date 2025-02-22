@@ -6,10 +6,12 @@
 
 ## 📌 Features
 ✅ **AI-Generated Adventures** – Unique D&D scenarios powered by OpenAI.  
-✅ **Player Choices** – Interactive story progression via chat commands.  
-✅ **Dice Rolling (`!roll d20`)** – RNG-based mechanics for skill checks. *(Coming Soon!)*  
-✅ **Character Stats Tracking** – Store and use character attributes. *(Planned Feature!)*  
+✅ **Player Choices (`!choose 1/2/3`)** – Interactive story progression via chat commands.  
+✅ **Dice Rolling (`!roll d20`)** – RNG-based mechanics for skill checks and combat.  
+✅ **Character Stats Tracking (`!register, !stats`)** – Strength, Dexterity, Intelligence impact gameplay.  
+✅ **Hybrid AI Model** – GPT-3.5-Turbo for adventure generation, GPT-4 for intelligent decision-making.  
 ✅ **Drop-in & Asynchronous Play** – No scheduling needed, play at your own pace!  
+✅ **Optimized API Usage** – Caching, rate-limiting, and structured prompts reduce OpenAI costs.  
 
 ---
 
@@ -67,20 +69,21 @@ python bot.py
 ### 🔹 Available Commands
 | Command | Description |
 |---------|-------------|
-| `!adventure` | Generates a new D&D adventure scenario. |
-| `!roll d20` | Rolls a d20 for skill checks or combat. *(Coming Soon!)* |
-| `!choose 1/2/3` | Selects an adventure path. *(Coming Soon!)* |
-| `!register` | Creates a character profile. *(Planned Feature!)* |
+| `!adventure` | Generates a new AI-powered D&D adventure scenario. |
+| `!roll d20` | Rolls a d20 for skill checks or combat. |
+| `!choose 1/2/3` | Selects an adventure path. |
+| `!register` | Creates a character profile with randomized stats. |
+| `!stats` | Displays current character stats. |
 
 ### 📖 Example Adventure
 ```
 📝 **Adventure Hook:**
 A mysterious cave has been discovered in the forest, rumored to hold an ancient artifact. However, a spectral guardian blocks the way.
 
-⚔️ Choices:
-1. Battle the guardian head-on.
-2. Solve the guardian’s riddle.
-3. Offer a rare item as tribute.
+⚔️ **Choices:**
+1️⃣ Battle the guardian head-on.
+2️⃣ Solve the guardian’s riddle.
+3️⃣ Offer a rare item as tribute.
 ```
 
 ---
@@ -88,15 +91,19 @@ A mysterious cave has been discovered in the forest, rumored to hold an ancient 
 ## 🔧 Development Progress
 
 ### ✅ Completed
-✔️ Set up Discord bot & API integration.  
 ✔️ AI-generated adventures using OpenAI.  
-✔️ Optimized API usage (cooldowns, caching).  
-✔️ Successfully deployed & tested first adventures.  
+✔️ Implemented `!choose` for interactive player decisions.  
+✔️ Added `!roll d20` for dice mechanics.  
+✔️ Character registration and stat tracking (`!register`, `!stats`).  
+✔️ Hybrid AI model (GPT-3.5 for adventure, GPT-4 for decision-making).  
+✔️ Implemented caching to reduce API costs.  
+✔️ Refactored choice tracking to prevent errors.  
+✔️ Optimized OpenAI prompts for better decision logic.  
 
 ### 🚀 In Progress
-🔲 Implement **dice rolling (`!roll d20`)**.  
-🔲 Add **player choices (`!choose 1/2/3`)** for branching paths.  
-🔲 Introduce **character stats tracking (`!register, !stats`)**.  
+🔲 Allow player stats to influence dice rolls & AI-generated outcomes.  
+🔲 Implement **NPC memory system** for interactive characters.  
+🔲 Store persistent player choices for long-term game progression.  
 
 ### 🔜 Future Enhancements
 📌 Character progression & inventory tracking.  
