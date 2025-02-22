@@ -1,78 +1,86 @@
 # 📜 AI-Powered D&D Scenario Bot - Development Roadmap
 
 ## 🔥 Project Overview
-An AI-powered Discord bot that generates dynamic D&D adventure scenarios and allows players to interact with them using RPG mechanics like dice rolling and character stats.
+
+An AI-powered Discord bot that generates dynamic D&D adventure scenarios, enabling players to experience interactive narratives with traditional RPG mechanics. The bot leverages OpenAI models to produce creative content and intelligent outcomes.
 
 ---
 
-## ✅ 1️⃣ Foundation (Completed)
-✔️ Set up the GitHub repository  
-✔️ Created initial `README.md`  
-✔️ Added `LICENSE`  
-✔️ Created `.gitignore` to exclude unnecessary files  
-✔️ Configured `.env` for API keys (Discord & OpenAI)  
-✔️ Implemented proper `.env` loading  
-✔️ Fixed missing `requirements.txt` and ensured dependencies are installed  
+## ✅ Completed Milestones
+
+- **Foundation:**
+  - Set up the GitHub repository, initial README, LICENSE, and .gitignore.
+  - Configured environment variables via `.env` for Discord and OpenAI API keys.
+  - Created `requirements.txt` for dependency management.
+
+- **Core Gameplay Mechanics:**
+  - Implemented `!adventure` command for AI-generated scenarios.
+  - Developed `!choose` command for interactive decision-making.
+  - Added basic dice rolling with `!roll d20`.
+  - Built player registration and stat tracking (`!register` and `!stats`).
+  - Integrated cooldown systems to prevent command spam.
 
 ---
 
-## ✅ 2️⃣ Core Gameplay Mechanics (Completed)
-✔️ Implemented `!adventure` command to generate AI-powered scenarios  
-✔️ Implemented `!choose` command to allow players to make choices  
-✔️ Tracked player choices and stored history  
-✔️ Implemented basic player registration with `!register`  
-✔️ Implemented `!stats` to display player attributes  
-✔️ Implemented a `!roll d20` command for dice rolls  
-✔️ Fixed bugs related to Discord token recognition and player tracking  
-✔️ Ensured choices are stored properly and verified `!stats` and `!choose` commands function correctly  
-✔️ Implemented cooldown system for `!adventure`, `!choose`, and `!roll` commands
+## 🚀 In Progress (Immediate Next Steps)
+
+### 1. Intelligent Decision Tracking & Persistence
+- **Player Stat Bonuses & Dice Rolls:**  
+  - **Task:** Integrate player stat modifiers into the dice rolling function.
+- **Database Integration:**  
+  - **Task:** Implement SQLite to store player choices and history persistently.
+  
+### 2. Documentation & Code Quality Enhancements
+- **Update Documentation:**  
+  - **Task:** Ensure README and inline comments are current with new features.
+- **Code Refactoring:**  
+  - **Task:** Remove debugging code and clean up command handlers.
 
 ---
 
-## 🚀 3️⃣ Intelligent Decision Tracking & Persistence (In Progress)
-✔️ Implement rate-limiting and caching to optimize API calls and reduce quota usage  
-✔️ Modify `!choose` to factor in **dice rolls** before resolving the outcome  
-🔲 Apply **player stats bonuses** to dice rolls (e.g., Strength affects combat)  
-🔲 Implement **Basic Decision Tracking** – Store past choices to influence future scenarios  
-🔲 Implement **Adventure Continuity** – Allow past choices to persist across multiple play sessions  
-🔲 Store player choices in a database (e.g., SQLite) instead of memory  
+## 🛠 Planned Enhancements (Future Features)
+
+### AI-Enhanced Gameplay Features
+- **Interactive NPCs:**  
+  - Introduce pre-defined AI-driven NPCs with unique personalities.
+- **NPC Memory System:**  
+  - Enable NPCs to remember past player interactions.
+- **Dynamic Encounter Scaling:**  
+  - Adjust challenge difficulty based on player performance and history.
+
+### Expanded RPG Mechanics
+- **Character Progression:**  
+  - Implement an XP and leveling system.
+- **Inventory Tracking:**  
+  - Track items and rewards through adventures.
+
+### Data Visualization & Analytics
+- **Dashboard Creation:**  
+  - Develop a Power BI or web dashboard to visualize player trends and decision pathways.
+- **User Feedback Collection:**  
+  - Implement mechanisms for beta testing and collecting user feedback.
 
 ---
 
-## 🛠 4️⃣ AI-Enhanced Gameplay Features (Planned)
-🔲 Interactive NPCs – Introduce pre-defined AI personalities (e.g., grumpy warrior, wise scholar)  
-🔲 Memory System – NPCs remember past player interactions  
-🔲 AI-Powered Task Optimization – Allow AI to balance difficulty dynamically based on past choices  
-🔲 Dynamic Encounter Scaling – AI modifies challenge difficulty based on player performance  
-🔲 Enable AI-generated encounters to scale based on character stats  
+## 📊 Feedback, Testing, & Contributor Onboarding
+
+- **User Testing:**  
+  - Organize beta tests with a small group of users.
+  - Collect detailed feedback on adventure generation and game mechanics.
+- **Documentation for Contributors:**  
+  - Create an onboarding guide detailing the development environment setup, code style, and testing procedures.
+- **Regular Updates:**  
+  - Schedule periodic reviews of project progress and update the roadmap as needed.
 
 ---
 
-## 📊 5️⃣ Data Visualization & Analytics (Planned)
-🔲 Create a Power BI or dashboard system to visualize player trends and choices  
-🔲 Track decision pathways, encounter success rates, and player stats progression  
-🔲 Adventure Trend Tracking – Log player choices to analyze common play styles  
+## 🏁 Final Features & Testing (Planned Release)
 
----
-
-## 🎲 6️⃣ Expanded RPG Mechanics (Planned)
-🔲 Implement an experience points (XP) system for leveling  
-🔲 Enable AI-generated challenges to factor in dice rolls + character stats  
-🔲 Introduce inventory tracking for items and rewards  
-
----
-
-## 🌐 7️⃣ GitHub & Documentation (Planned)
-🔲 Maintain detailed documentation for future contributors  
-🔲 Create a guide on setting up the bot locally  
-🔲 Add example prompts and structured data for training AI responses  
-
----
-
-## 🏁 8️⃣ Final Features & Testing (Planned)
-🔲 Beta Testing with Multiple Users – Gather feedback & adjust mechanics  
-🔲 Refine OpenAI Prompts for Better Storytelling – Fine-tune adventure generation quality  
-🔲 Optimize Performance & Final API Cost Review – Ensure sustainable long-term usage  
-🔲 Final Documentation & Deployment – Wrap up guides for public use  
-
----
+- **Beta Testing:**  
+  - Gather and incorporate user feedback to fine-tune gameplay.
+- **Performance Optimization:**  
+  - Conduct a final review of API usage and bot performance.
+- **Final Documentation:**  
+  - Ensure all documentation, including the contributor guide, is comprehensive and up-to-date.
+- **Public Deployment:**  
+  - Finalize the bot for public use and open up for community contributions.
