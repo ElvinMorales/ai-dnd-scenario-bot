@@ -27,20 +27,45 @@ An AI-powered Discord bot that generates dynamic D&D adventure scenarios, enabli
 ### 1. Intelligent Decision Tracking & Persistence
 - **Player Stat Bonuses & Dice Rolls:**  
   - **Task:** Integrate player stat modifiers into the dice rolling function.
+  - **Status:** Completed.
+
+- **Expanded Character Stats:**
+  - **Task:** Update the `!register` command to generate a full D&D 5e character with six ability scores (Strength, Dexterity, Constitution, Intelligence, Wisdom, Charisma) and calculate HP dynamically using Constitution.
+  - **Status:** Completed.
+  
+- **Revised Dice Roll Commands:**
+  - **Task:** Modify `!roll d20` so that if no ability is provided it returns a plain roll, and if an ability is specified, it applies the corresponding modifier.
+  - **Status:** Completed.
+  
+- **Updated Stats Display:**
+  - **Task:** Update `!stats` command to show all six abilities along with their calculated modifiers and the current HP.
+  - **Status:** Completed.
+
 - **Database Integration:**  
   - **Task:** Implement SQLite to store player choices and history persistently.
   
 ### 2. Documentation & Code Quality Enhancements
 - **Update Documentation:**  
   - **Task:** Ensure README and inline comments are current with new features.
+  - **Status:** Ongoing.
+
 - **Code Refactoring:**  
   - **Task:** Remove debugging code and clean up command handlers.
+  - **Status:** Completed.
+
+- **Testing:**
+  - **Task:** Conduct further testing of new features, including edge cases (e.g., unregistered users using modifier commands) and refine any remaining bugs.
+  - **Estimated Timeline:** Ongoing.
+
+
 
 ---
 
 ## 🛠 Planned Enhancements (Future Features)
 
 ### AI-Enhanced Gameplay Features
+- **Context-Specific Rolls:**
+  - Separate commands for different types of rolls (e.g., attack, saving throws, skill checks) that apply the correct ability modifiers.
 - **Interactive NPCs:**  
   - Introduce pre-defined AI-driven NPCs with unique personalities.
 - **NPC Memory System:**  
@@ -66,7 +91,10 @@ An AI-powered Discord bot that generates dynamic D&D adventure scenarios, enabli
 
 - **User Testing:**  
   - Organize beta tests with a small group of users.
-  - Collect detailed feedback on adventure generation and game mechanics.
+  - Prepare a testing plan covering:
+    - Functionality tests for all commands.
+    - Edge case testing (e.g., unregistered users, invalid input).
+    - Beta testing feedback integration.
 - **Documentation for Contributors:**  
   - Create an onboarding guide detailing the development environment setup, code style, and testing procedures.
 - **Regular Updates:**  
@@ -82,5 +110,3 @@ An AI-powered Discord bot that generates dynamic D&D adventure scenarios, enabli
   - Conduct a final review of API usage and bot performance.
 - **Final Documentation:**  
   - Ensure all documentation, including the contributor guide, is comprehensive and up-to-date.
-- **Public Deployment:**  
-  - Finalize the bot for public use and open up for community contributions.

@@ -1,21 +1,36 @@
 # 🎲 AI-Powered D&D Scenario Bot
 
-**A Discord bot that generates dynamic D&D adventure scenarios, allowing players to interact asynchronously with an evolving narrative.**
+**A Discord bot that generates dynamic D&D adventure scenarios, letting players experience interactive narratives with traditional RPG mechanics.**
 
 ---
 
 ## Overview
-AI-Powered D&D Scenario Bot is designed to create engaging and unique D&D adventures on Discord. It leverages OpenAI’s GPT models to generate adventure hooks, interactive choices, and dynamic outcomes, all while providing traditional RPG mechanics such as dice rolling and character stat tracking.
+
+AI-Powered D&D Scenario Bot creates unique D&D adventures on Discord by leveraging OpenAI's GPT models. The bot not only generates engaging adventure hooks and interactive choices but also incorporates authentic D&D 5e mechanics—such as full character ability scores, dynamic HP calculations, and context-sensitive dice rolls.
 
 ---
 
 ## 📌 Features
-- **AI-Generated Adventures:** Unique scenarios powered by GPT-3.5-Turbo (with GPT-4 for enhanced decision outcomes).
-- **Interactive Player Choices:** Progress the story using commands like `!choose 1/2/3`.
-- **Dice Rolling Mechanics:** Use `!roll d20` to simulate skill checks and combat.
-- **Character Registration & Stats:** Register your character with `!register` and view your attributes using `!stats`.
-- **Optimized API Usage:** Caching, rate-limiting, and structured prompts reduce API costs.
-- **Hybrid AI Model:** Combining GPT-3.5 for general content with GPT-4 for intelligent decision-making.
+
+- **AI-Generated Adventures:**  
+  Create unique scenarios using GPT-3.5-Turbo for adventure hooks and GPT-4 for decision outcomes.
+  
+- **Interactive Choices:**  
+  Progress your adventure with commands like `!choose 1/2/3`.
+
+- **Full D&D 5e Character Stats:**  
+  Register a character with six ability scores—**Strength, Dexterity, Constitution, Intelligence, Wisdom, and Charisma**.  
+  - HP is dynamically calculated using your Constitution modifier.
+  
+- **Enhanced Dice Rolling Mechanics:**  
+  - Use `!roll d20` to get a simple d20 roll with no modifier.
+  - Append an ability (e.g., `!roll d20 dexterity`) to apply that ability's modifier using the standard formula: **(Ability Score - 10) // 2**.
+  
+- **Optimized API Usage:**  
+  Incorporates caching and rate-limiting to reduce API costs.
+  
+- **Hybrid AI Model:**  
+  Combines GPT-3.5 for general content and GPT-4 for more nuanced decision outcomes.
 
 ---
 
@@ -23,14 +38,14 @@ AI-Powered D&D Scenario Bot is designed to create engaging and unique D&D advent
 
 ### Prerequisites
 
-Before running the bot, make sure you have:
+Before running the bot, ensure you have:
 - **Python 3.8+** installed.
-- A **Discord Developer Account** to create and manage your bot ([Create Here](https://discord.com/developers/applications)).
-- A **Discord Bot Token**.
+- A **Discord Developer Account** and a **Discord Bot Token** ([Create Here](https://discord.com/developers/applications)).
 - An **OpenAI API Key** ([Get One Here](https://platform.openai.com/signup)).
-- Installed dependencies via:
+- Dependencies installed via:
   ```bash
   pip install -r requirements.txt
+
 ---
 
 ### 2️⃣ Installation & Setup
@@ -76,23 +91,39 @@ python bot.py
 ### 🔹 Available Commands
 | Command | Description |
 |---------|-------------|
-| `!adventure` | Generates a new AI-powered D&D adventure scenario. |
-| `!roll d20` | Rolls a d20 for skill checks or combat. |
-| `!choose 1/2/3` | Selects an adventure path from the available choices. |
-| `!register` | Registers a new character with random stats. |
-| `!stats` | Displays current character stats. |
+| `!register` | Registers a new character with full D&D 5e stats and dynamically calculated HP. |
+| `!stats` | Displays your character's six ability scores, their modifiers, and your current HP. |
+| `!adventure` | Generates a new AI-powered adventure scenario. |
+| `!roll d20 <ability>` | Rolls a d20 and applies the specified ability's modifier (choose from Strength, Dexterity, Constitution, Intelligence, Wisdom, or Charisma). |
+| `!choose 1/2/3` | Selects an adventure path based on the choices provided. |
 
 ### 📖 Usage Example
 ```yaml
 User: !register
-Bot: @Player, you have been registered! Use `!stats` to view your attributes.
+Bot: @Player, you have been registered with the following stats:
+     💪Strength: 14 (mod: +2)
+     🏹Dexterity: 12 (mod: +1)
+     🛡️Constitution: 16 (mod: +3)  --> ❤️HP: 13 (base 10 + +3)
+     🧠Intelligence: 10 (mod: +0)
+     👁️Wisdom: 8 (mod: -1)
+     🗣️Charisma: 15 (mod: +2)
+     Use `!stats` to view your character's attributes.
 
 User: !stats
 Bot: 📜 **Player's Stats:**
-     💪 Strength: 15
-     🏹 Dexterity: 12
-     🧠 Intelligence: 17
-     ❤️ HP: 100
+     💪Strength: 14 (mod: +2)
+     🏹Dexterity: 12 (mod: +1)
+     🛡️Constitution: 16 (mod: +3)
+     🧠Intelligence: 10 (mod: +0)
+     👁️Wisdom: 8 (mod: -1)
+     🗣️Charisma: 15 (mod: +2)
+     ❤️ HP: 13
+
+User: !roll d20
+Bot: 🎲 You rolled a **15** (1d20) with no modifier!
+
+User: !roll d20 dexterity
+Bot: 🎲 You rolled a **15** (+1) (1d20) using your Dexterity modifier for a total of **16**!
 
 User: !adventure
 Bot: 🎲 Generating a new adventure... please wait!
@@ -118,7 +149,8 @@ Bot: 🔮 You chose: Enter the cave.
 ---
 ## ⚠️ Known Issues
 - Adventure caching may occasionally reuse outdated choices.
-- Stat-based modifiers for dice rolls are in progress.
+- Further refinement of context-specific roll commands (e.g., separate attack or saving throw commands) is planned.
+- Additional testing is required for unregistered users using modifier commands.
 - Some dynamic outcomes may vary in consistency; further tuning is needed.
 ---
 ## 🤝 Contributing
