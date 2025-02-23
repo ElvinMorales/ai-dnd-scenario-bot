@@ -124,12 +124,23 @@ async def on_message(message):
             await message.channel.send("✅ You are already registered! Use `!stats` to view your stats.")
             return
 
-        # Generate random stats for the new player
-        player_stats[user_id_str] = {
+        # Generate random ability scores for a full D&D 5e character
+        ability_scores = {
             "Strength": random.randint(1, 20),
             "Dexterity": random.randint(1, 20),
+            "Constitution": random.randint(1, 20),
             "Intelligence": random.randint(1, 20),
-            "HP": 100,
+            "Wisdom": random.randint(1, 20),
+            "Charisma": random.randint(1, 20)
+        }
+        # Calculate Constitution modifier using (Constitution - 10) // 2
+        con_modifier = (ability_scores["Constitution"] - 10) // 2
+        # Set HP to a base value (10) plus the Constitution modifier; ensure minimum HP is 1
+        hp = max(10 + con_modifier, 1)
+
+        player_stats[user_id_str] = {
+            **ability_scores,
+            "HP": hp,
             "history": []
         }
         save_players()
@@ -143,26 +154,63 @@ async def on_message(message):
             return
 
         stats = player_stats[user_id_str]
+
+        # Function to calculate the ability modifier
+        def calc_modifier(score):
+            return (score - 10) // 2
+
         stats_message = (
             f"📜 **{message.author.name}'s Stats:**\n"
-            f"💪 Strength: {stats.get('Strength', 10)}\n"
-            f"🏹 Dexterity: {stats.get('Dexterity', 10)}\n"
-            f"🧠 Intelligence: {stats.get('Intelligence', 10)}\n"
-            f"❤️ HP: {stats.get('HP', 100)}"
+            f"💪 Strength: {stats.get('Strength', 10)} (mod: {calc_modifier(stats.get('Strength', 10)):+})\n"
+            f"🏹 Dexterity: {stats.get('Dexterity', 10)} (mod: {calc_modifier(stats.get('Dexterity', 10)):+})\n"
+            f"🛡️ Constitution: {stats.get('Constitution', 10)} (mod: {calc_modifier(stats.get('Constitution', 10)):+})\n"
+            f"🧠 Intelligence: {stats.get('Intelligence', 10)} (mod: {calc_modifier(stats.get('Intelligence', 10)):+})\n"
+            f"👁️ Wisdom: {stats.get('Wisdom', 10)} (mod: {calc_modifier(stats.get('Wisdom', 10)):+})\n"
+            f"🗣️ Charisma: {stats.get('Charisma', 10)} (mod: {calc_modifier(stats.get('Charisma', 10)):+})\n"
+            f"❤️ HP: {stats.get('HP', 10)}"
         )
         await message.channel.send(stats_message)
-
-    # ----- DICE ROLL: !roll d20 -----
+    
+    # 🎲 DICE ROLL - !roll d20 with stat bonus integration
     if message.content.startswith("!roll d20"):
-        cooldown_time = 3  # 3-second cooldown for rolling
+        cooldown_time = 3  # 3-second cooldown for !roll d20
         remaining = is_on_cooldown(user_id, "!roll", cooldown_time)
         if remaining:
             await message.channel.send(f"⏳ You must wait {remaining} seconds before rolling again.")
             return
 
         set_cooldown(user_id, "!roll", cooldown_time)
-        roll = random.randint(1, 20)  # Simulate a d20 roll
-        await message.channel.send(f"🎲 You rolled a **{roll}** (1d20)!")
+        roll = random.randint(1, 20)  # Generate a random d20 roll
+
+        # Parse command arguments: expected format is "!roll d20 [ability]"
+        parts = message.content.split()
+
+        # If no additional parameter is provided, just output the raw roll
+        if len(parts) == 2:
+            await message.channel.send(f"🎲 You rolled a **{roll}** (1d20) with no modifier!")
+            return
+
+        # If an ability parameter is provided, validate and apply its modifier
+        ability = parts[2].capitalize()
+        if ability not in {"Strength", "Dexterity", "Constitution", "Intelligence", "Wisdom", "Charisma"}:
+            await message.channel.send("❌ Invalid ability specified. Choose from Strength, Dexterity, Constitution, Intelligence, Wisdom, or Charisma.")
+            return
+
+        user_id_str = str(message.author.id)
+        if user_id_str in player_stats:
+            # Retrieve the ability score and calculate its modifier
+            score = player_stats[user_id_str].get(ability, 10)
+            bonus = (score - 10) // 2
+            final_total = roll + bonus
+            bonus_str = f" (+{bonus})" if bonus >= 0 else f" ({bonus})"
+            await message.channel.send(
+                f"🎲 You rolled a **{roll}**{bonus_str} (1d20) using your {ability} modifier for a total of **{final_total}**!"
+            )
+        else:
+            await message.channel.send(
+                f"🎲 You rolled a **{roll}** (1d20)! Register with `!register` to gain stat bonuses."
+            )
+
 
     # ----- ADVENTURE GENERATION: !adventure -----
     elif message.content.startswith("!adventure"):
