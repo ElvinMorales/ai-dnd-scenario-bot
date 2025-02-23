@@ -43,6 +43,7 @@ An AI-powered Discord bot that generates dynamic D&D adventure scenarios, enabli
 
 - **Database Integration:**  
   - **Task:** Implement SQLite to store player choices and history persistently.
+  - **Status:** Completed.
   
 ### 2. Documentation & Code Quality Enhancements
 - **Update Documentation:**  

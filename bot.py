@@ -7,6 +7,47 @@ import re
 import time
 from openai import OpenAI
 from dotenv import load_dotenv
+import sqlite3
+
+# Database file for decision tracking
+DB_FILE = "decisions.db"
+
+def init_db():
+    """
+    Initialize the SQLite database and create the 'decisions' table if it doesn't exist.
+    """
+    conn = sqlite3.connect(DB_FILE)
+    cursor = conn.cursor()
+    cursor.execute('''
+        CREATE TABLE IF NOT EXISTS decisions (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            user_id TEXT NOT NULL,
+            decision TEXT NOT NULL,
+            adventure_text TEXT,
+            timestamp DATETIME DEFAULT CURRENT_TIMESTAMP
+        )
+    ''')
+    conn.commit()
+    conn.close()
+
+def log_decision(user_id, decision, adventure_text=""):
+    """
+    Log a player's decision into the database.
+    
+    Args:
+        user_id (str): The player's unique ID.
+        decision (str): The chosen decision text.
+        adventure_text (str): The adventure hook context (optional).
+    """
+    conn = sqlite3.connect(DB_FILE)
+    cursor = conn.cursor()
+    cursor.execute('''
+        INSERT INTO decisions (user_id, decision, adventure_text)
+        VALUES (?, ?, ?)
+    ''', (user_id, decision, adventure_text))
+    conn.commit()
+    conn.close()
+
 
 # Load environment variables from .env file
 load_dotenv()
@@ -104,6 +145,7 @@ async def on_ready():
     """
     Event handler for when the bot successfully logs in.
     """
+    init_db()  # Initialize the decision tracking database
     print(f'✅ Logged in as {client.user}')
 
 @client.event
@@ -312,9 +354,21 @@ async def on_message(message):
             # Append the chosen action to the player's history and save the update
             if user_id_str not in player_stats:
                 # In case the player isn't registered, initialize default stats
-                player_stats[user_id_str] = {"Strength": 10, "Dexterity": 10, "Intelligence": 10, "HP": 100, "history": []}
+                player_stats[user_id_str] = {
+                    "Strength": 10, "Dexterity": 10, "Constitution": 10,
+                    "Intelligence": 10, "Wisdom": 10, "Charisma": 10,
+                    "HP": 10, "history": []
+                }
             player_stats[user_id_str]["history"].append(chosen_action)
             save_players()
+
+            # Retrieve the adventure text from cache (if available)
+            adventure_text = ""
+            if user_id_str in scenario_cache:
+                adventure_text = scenario_cache[user_id_str].get("adventure_text", "")
+
+            # Log the decision into the SQLite database
+            log_decision(user_id_str, chosen_action, adventure_text)
 
             # Roll a d20 and use GPT-4 to generate a dynamic outcome based on the choice
             dice_result = random.randint(1, 20)
