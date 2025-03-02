@@ -212,7 +212,20 @@ async def on_message(message):
             f"❤️ HP: {stats.get('HP', 10)}"
         )
         await message.channel.send(stats_message)
-    
+
+    # ----- VIEW PLAYER SKILLS: !skills -----
+    elif message.content.startswith("!skills"):
+        skill_list = (
+            "**Available Skills & Associated Abilities:**\n"
+            "🌀 Acrobatics (Dexterity) | 🐾 Animal Handling (Wisdom) | 📖 Arcana (Intelligence)\n"
+            "🏋️ Athletics (Strength) | 🎭 Deception (Charisma) | 🏛️ History (Intelligence)\n"
+            "👁️ Insight (Wisdom) | 😈 Intimidation (Charisma) | 🔍 Investigation (Intelligence)\n"
+            "🩺 Medicine (Wisdom) | 🌿 Nature (Intelligence) | 👀 Perception (Wisdom)\n"
+            "🎶 Performance (Charisma) | 🗣️ Persuasion (Charisma) | 🔥 Religion (Intelligence)\n"
+            "🤹 Sleight of Hand (Dexterity) | 🥷 Stealth (Dexterity) | 🏕️ Survival (Wisdom)\n\n"
+        )
+        await message.channel.send(skill_list)
+
     # 🎲 DICE ROLL - !roll d20 with stat bonus integration
     if message.content.startswith("!roll d20"):
         cooldown_time = 3  # 3-second cooldown for !roll d20
@@ -381,6 +394,143 @@ async def on_message(message):
             await message.channel.send(f"🔮 You chose: {chosen_action}\n🎲 Your roll: {dice_result}\n📝 **Outcome:** {outcome}")
         else:
             await message.channel.send("❓ Please choose a valid option: `!choose 1`, `!choose 2`, or `!choose 3`.")
+    # ------------------- Context-Specific Roll Commands -------------------
+
+    # Melee Attack Roll - uses Strength modifier
+    elif message.content.startswith("!attack"):
+        cooldown_time = 3  # 3-second cooldown for attack rolls
+        remaining = is_on_cooldown(user_id, "!attack", cooldown_time)
+        if remaining:
+            await message.channel.send(f"⏳ You must wait {remaining} seconds before attacking again.")
+            return
+        set_cooldown(user_id, "!attack", cooldown_time)
+        roll = random.randint(1, 20)
+        user_id_str = str(message.author.id)
+        if user_id_str in player_stats:
+            score = player_stats[user_id_str].get("Strength", 10)
+            bonus = (score - 10) // 2
+            final_total = roll + bonus
+            bonus_str = f" (+{bonus})" if bonus >= 0 else f" ({bonus})"
+            await message.channel.send(
+                f"⚔️ **Attack Roll:** You rolled a **{roll}**{bonus_str} (1d20) using your Strength modifier for a total of **{final_total}**!"
+            )
+        else:
+            await message.channel.send(
+                f"⚔️ **Attack Roll:** You rolled a **{roll}** (1d20)! Register with `!register` to gain stat bonuses."
+            )
+
+    # Ranged Attack Roll - uses Dexterity modifier
+    elif message.content.startswith("!ranged"):
+        cooldown_time = 3  # 3-second cooldown for ranged attacks
+        remaining = is_on_cooldown(user_id, "!ranged", cooldown_time)
+        if remaining:
+            await message.channel.send(f"⏳ You must wait {remaining} seconds before making a ranged attack.")
+            return
+        set_cooldown(user_id, "!ranged", cooldown_time)
+        roll = random.randint(1, 20)
+        user_id_str = str(message.author.id)
+        if user_id_str in player_stats:
+            score = player_stats[user_id_str].get("Dexterity", 10)
+            bonus = (score - 10) // 2
+            final_total = roll + bonus
+            bonus_str = f" (+{bonus})" if bonus >= 0 else f" ({bonus})"
+            await message.channel.send(
+                f"🏹 **Ranged Attack Roll:** You rolled a **{roll}**{bonus_str} (1d20) using your Dexterity modifier for a total of **{final_total}**!"
+            )
+        else:
+            await message.channel.send(
+                f"🏹 **Ranged Attack Roll:** You rolled a **{roll}** (1d20)! Register with `!register` to gain stat bonuses."
+            )
+
+    # Saving Throw Roll - expects an ability parameter (e.g., !save Constitution)
+    elif message.content.startswith("!save"):
+        cooldown_time = 3  # 3-second cooldown for saving throws
+        remaining = is_on_cooldown(user_id, "!save", cooldown_time)
+        if remaining:
+            await message.channel.send(f"⏳ You must wait {remaining} seconds before rolling another saving throw.")
+            return
+        set_cooldown(user_id, "!save", cooldown_time)
+        parts = message.content.split()
+        if len(parts) < 2:
+            await message.channel.send("❌ Please specify which saving throw to roll (e.g., `!save Constitution`).")
+            return
+        ability = parts[1].capitalize()
+        if ability not in {"Strength", "Dexterity", "Constitution", "Intelligence", "Wisdom", "Charisma"}:
+            await message.channel.send("❌ Invalid ability specified. Choose from Strength, Dexterity, Constitution, Intelligence, Wisdom, or Charisma.")
+            return
+        roll = random.randint(1, 20)
+        user_id_str = str(message.author.id)
+        if user_id_str in player_stats:
+            score = player_stats[user_id_str].get(ability, 10)
+            bonus = (score - 10) // 2
+            final_total = roll + bonus
+            bonus_str = f" (+{bonus})" if bonus >= 0 else f" ({bonus})"
+            await message.channel.send(
+                f"🛡️ **Saving Throw ({ability}):** You rolled a **{roll}**{bonus_str} (1d20) for a total of **{final_total}**!"
+            )
+        else:
+            await message.channel.send(
+                f"🛡️ **Saving Throw:** You rolled a **{roll}** (1d20)! Register with `!register` to gain stat bonuses."
+            )
+
+    # Skill Check Roll - expects a skill parameter (e.g., !skill Stealth)
+    elif message.content.startswith("!skill"):
+        cooldown_time = 3  # 3-second cooldown for skill checks
+        remaining = is_on_cooldown(user_id, "!skill", cooldown_time)
+        if remaining:
+            await message.channel.send(f"⏳ You must wait {remaining} seconds before making another skill check.")
+            return
+        set_cooldown(user_id, "!skill", cooldown_time)
+
+        parts = message.content.split()
+        if len(parts) < 2:
+            await message.channel.send("To roll a skill check, type `!skill <skill_name>` (e.g., `!skill Stealth`).")
+            return
+
+        # Skill-to-Ability Mapping (Based on D&D 5e rules)
+        skill_map = {
+            "acrobatics": "Dexterity",
+            "animal handling": "Wisdom",
+            "arcana": "Intelligence",
+            "athletics": "Strength",
+            "deception": "Charisma",
+            "history": "Intelligence",
+            "insight": "Wisdom",
+            "intimidation": "Charisma",
+            "investigation": "Intelligence",
+            "medicine": "Wisdom",
+            "nature": "Intelligence",
+            "perception": "Wisdom",
+            "performance": "Charisma",
+            "persuasion": "Charisma",
+            "religion": "Intelligence",
+            "sleight of hand": "Dexterity",
+            "stealth": "Dexterity",
+            "survival": "Wisdom",
+        }
+
+        # Extract skill name and normalize it
+        skill_input = " ".join(parts[1:]).lower()
+        if skill_input not in skill_map:
+            await message.channel.send("❌ Invalid skill specified. Use `!skills` to see the full list.")
+            return
+
+        ability = skill_map[skill_input]  # Get the associated ability score
+        roll = random.randint(1, 20)
+        user_id_str = str(message.author.id)
+
+        if user_id_str in player_stats:
+            score = player_stats[user_id_str].get(ability, 10)
+            bonus = (score - 10) // 2
+            final_total = roll + bonus
+            bonus_str = f" (+{bonus})" if bonus >= 0 else f" ({bonus})"
+            await message.channel.send(
+                f"📜 **{skill_input.capitalize()} Check ({ability}):** You rolled a **{roll}**{bonus_str} (1d20) for a total of **{final_total}**!"
+            )
+        else:
+            await message.channel.send(
+                f"📜 **Skill Check:** You rolled a **{roll}** (1d20)! Register with `!register` to gain stat bonuses."
+            )
 
 # ------------------ Run the Discord Bot ------------------
 
