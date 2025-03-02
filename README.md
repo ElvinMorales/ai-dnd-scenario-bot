@@ -22,10 +22,19 @@ AI-Powered D&D Scenario Bot creates unique D&D adventures on Discord by leveragi
   Register a character with six ability scores—**Strength, Dexterity, Constitution, Intelligence, Wisdom, and Charisma**.  
   - HP is dynamically calculated using your Constitution modifier.
   
-- **Enhanced Dice Rolling Mechanics:**  
-  - Use `!roll d20` to get a simple d20 roll with no modifier.
-  - Append an ability (e.g., `!roll d20 dexterity`) to apply that ability's modifier using the standard formula: **(Ability Score - 10) // 2**.
-  
+- **Expanded Dice Rolling System:**  
+  - `!roll d20` → Rolls a **d20** with **no modifier**.  
+  - `!roll d20 <ability>` → Rolls a **d20 + ability modifier** (Strength, Dexterity, etc.).  
+  - `!attack` → Rolls a melee attack (Strength modifier).  
+  - `!ranged` → Rolls a ranged attack (Dexterity modifier).  
+  - `!save <ability>` → Rolls a saving throw (e.g., `!save Wisdom`).  
+  - `!skill <skill_name>` → Rolls a skill check using the correct ability modifier.  
+  - `!skills` → Lists all available skills and their linked abilities.
+
+- **Decision Tracking & Persistence:**  
+  - Choices made using `!choose` are stored in a **SQLite database**.  
+  - Decisions may impact future adventures!
+
 - **Optimized API Usage:**  
   Incorporates caching and rate-limiting to reduce API costs.
   
@@ -94,8 +103,14 @@ python bot.py
 | `!register` | Registers a new character with full D&D 5e stats and dynamically calculated HP. |
 | `!stats` | Displays your character's six ability scores, their modifiers, and your current HP. |
 | `!adventure` | Generates a new AI-powered adventure scenario. |
-| `!roll d20 <ability>` | Rolls a d20 and applies the specified ability's modifier (choose from Strength, Dexterity, Constitution, Intelligence, Wisdom, or Charisma). |
 | `!choose 1/2/3` | Selects an adventure path based on the choices provided. |
+| `!roll d20` | Rolls a d20 without any modifier. |
+| `!roll d20 <ability>` | Rolls a d20 + ability modifier (Strength, Dexterity, Constitution, etc.). |
+| `!attack` | Rolls a melee attack (Strength modifier). |
+| `!ranged` | Rolls a ranged attack (Dexterity modifier). |
+| `!save <ability>` | Rolls a saving throw (e.g., `!save Wisdom`). |
+| `!skills` | 	Displays the full list of available skills and their linked abilities. |
+| `!skill <skill_name>` | Rolls a skill check using the correct ability modifier (e.g., `!skill Perception`). |
 
 ### 📖 Usage Example
 ```yaml
@@ -149,9 +164,8 @@ Bot: 🔮 You chose: Enter the cave.
 ---
 ## ⚠️ Known Issues
 - Adventure caching may occasionally reuse outdated choices.
-- Further refinement of context-specific roll commands (e.g., separate attack or saving throw commands) is planned.
+- Further refinement of context-specific roll commands (e.g., adding proficiency bonuses) is planned.
 - Additional testing is required for unregistered users using modifier commands.
-- Some dynamic outcomes may vary in consistency; further tuning is needed.
 ---
 ## 🤝 Contributing
 Contributions are welcome! Please follow these guidelines:

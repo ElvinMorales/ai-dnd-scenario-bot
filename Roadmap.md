@@ -2,112 +2,80 @@
 
 ## 🔥 Project Overview
 
-An AI-powered Discord bot that generates dynamic D&D adventure scenarios, enabling players to experience interactive narratives with traditional RPG mechanics. The bot leverages OpenAI models to produce creative content and intelligent outcomes.
+An AI-powered Discord bot that generates dynamic D&D adventure scenarios, blending interactive storytelling with traditional D&D 5e mechanics. The bot leverages OpenAI models to create immersive experiences, complete with a full character creation system, dice rolling mechanics, and skill-based gameplay.
 
 ---
-
 ## ✅ Completed Milestones
 
-- **Foundation:**
-  - Set up the GitHub repository, initial README, LICENSE, and .gitignore.
-  - Configured environment variables via `.env` for Discord and OpenAI API keys.
-  - Created `requirements.txt` for dependency management.
+### **1. Foundation**
+- Set up the GitHub repository, initial README, LICENSE, and `.gitignore`.
+- Configured environment variables via `.env` for Discord and OpenAI API keys.
+- Created `requirements.txt` for dependency management.
 
-- **Core Gameplay Mechanics:**
-  - Implemented `!adventure` command for AI-generated scenarios.
-  - Developed `!choose` command for interactive decision-making.
-  - Added basic dice rolling with `!roll d20`.
-  - Built player registration and stat tracking (`!register` and `!stats`).
-  - Integrated cooldown systems to prevent command spam.
+### **2. Core Gameplay Mechanics**
+- Implemented `!adventure` command for AI-generated scenarios.
+- Developed `!choose` command for interactive decision-making.
+- Built **player registration and full stat tracking** (`!register` and `!stats`).
+- Integrated a **cooldown system** to prevent command spam.
+- Implemented **decision tracking and persistence** using SQLite.
+
+### **3. Expanded Dice Rolling System**
+- Implemented `!roll d20` (simple d20 roll).
+- Enhanced `!roll d20 <ability>` to apply the correct ability modifier.
+- Added context-specific rolls:
+  - **`!attack`** → Uses **Strength** for melee attacks.
+  - **`!ranged`** → Uses **Dexterity** for ranged attacks.
+  - **`!save <ability>`** → Rolls a saving throw based on the specified ability.
+- **Skill Checks Implemented!**
+  - **`!skill <skill_name>`** → Rolls a skill check with the corresponding ability modifier.
+  - **`!skills`** → Displays the full list of skills and their linked abilities.
 
 ---
-
 ## 🚀 In Progress (Immediate Next Steps)
 
-### 1. Intelligent Decision Tracking & Persistence
-- **Player Stat Bonuses & Dice Rolls:**  
-  - **Task:** Integrate player stat modifiers into the dice rolling function.
-  - **Status:** Completed.
+### **1. Proficiency Bonuses for Skills**
+- **Task:** Implement proficiency bonuses so players who are proficient in certain skills gain an additional bonus when rolling skill checks.
+- **Estimated Timeline:** 1 week.
 
-- **Expanded Character Stats:**
-  - **Task:** Update the `!register` command to generate a full D&D 5e character with six ability scores (Strength, Dexterity, Constitution, Intelligence, Wisdom, Charisma) and calculate HP dynamically using Constitution.
-  - **Status:** Completed.
-  
-- **Revised Dice Roll Commands:**
-  - **Task:** Modify `!roll d20` so that if no ability is provided it returns a plain roll, and if an ability is specified, it applies the corresponding modifier.
-  - **Status:** Completed.
-  
-- **Updated Stats Display:**
-  - **Task:** Update `!stats` command to show all six abilities along with their calculated modifiers and the current HP.
-  - **Status:** Completed.
-
-- **Database Integration:**  
-  - **Task:** Implement SQLite to store player choices and history persistently.
-  - **Status:** Completed.
-  
-### 2. Documentation & Code Quality Enhancements
-- **Update Documentation:**  
-  - **Task:** Ensure README and inline comments are current with new features.
-  - **Status:** Ongoing.
-
-- **Code Refactoring:**  
-  - **Task:** Remove debugging code and clean up command handlers.
-  - **Status:** Completed.
-
-- **Testing:**
-  - **Task:** Conduct further testing of new features, including edge cases (e.g., unregistered users using modifier commands) and refine any remaining bugs.
-  - **Estimated Timeline:** Ongoing.
-
-
-
+### **2. Expanded Documentation & Code Optimization**
+- **Task:** Refine the bot’s documentation, particularly covering decision tracking and how skills function.
+- **Estimated Timeline:** Ongoing, with updates scheduled alongside new features.
 ---
 
 ## 🛠 Planned Enhancements (Future Features)
 
-### AI-Enhanced Gameplay Features
-- **Context-Specific Rolls:**
-  - Separate commands for different types of rolls (e.g., attack, saving throws, skill checks) that apply the correct ability modifiers.
-- **Interactive NPCs:**  
-  - Introduce pre-defined AI-driven NPCs with unique personalities.
-- **NPC Memory System:**  
-  - Enable NPCs to remember past player interactions.
-- **Dynamic Encounter Scaling:**  
-  - Adjust challenge difficulty based on player performance and history.
+### **1. AI-Enhanced Gameplay Features**
+- **Interactive NPCs:** Introduce AI-generated NPCs with unique personalities and memory systems.
+- **Decision-Based Adventure Continuity:** Allow **past choices to influence future scenarios** beyond a single adventure session.
 
-### Expanded RPG Mechanics
-- **Character Progression:**  
-  - Implement an XP and leveling system.
-- **Inventory Tracking:**  
-  - Track items and rewards through adventures.
+### **2. RPG Mechanics Enhancements**
+- **Character Progression:** Implement an **XP and leveling system**.
+- **Inventory & Items:** Add **item tracking** for player rewards.
+- **Custom Character Creation:** Let players **manually assign ability scores** instead of rolling randomly.
 
-### Data Visualization & Analytics
-- **Dashboard Creation:**  
-  - Develop a Power BI or web dashboard to visualize player trends and decision pathways.
-- **User Feedback Collection:**  
-  - Implement mechanisms for beta testing and collecting user feedback.
+### **3. Data Visualization & User Analytics**
+- **Player Statistics Dashboard:** Create a dashboard to **track player trends**, **decision patterns**, and **success rates**.
+- **Adventure Analytics:** Analyze common adventure outcomes and refine AI generation for better balance.
 
 ---
 
-## 📊 Feedback, Testing, & Contributor Onboarding
+## 📊 Contributor Onboarding & Testing
 
-- **User Testing:**  
-  - Organize beta tests with a small group of users.
-  - Prepare a testing plan covering:
-    - Functionality tests for all commands.
-    - Edge case testing (e.g., unregistered users, invalid input).
-    - Beta testing feedback integration.
-- **Documentation for Contributors:**  
-  - Create an onboarding guide detailing the development environment setup, code style, and testing procedures.
-- **Regular Updates:**  
-  - Schedule periodic reviews of project progress and update the roadmap as needed.
+- **Contributor Guide:** Develop an onboarding guide for new contributors, covering:
+  - Project structure
+  - Setting up the development environment
+  - Code style guidelines
+  - Best practices for testing
+  
+- **Testing Plan:** Prepare structured tests for:
+  - **Functionality testing** (commands working as intended).
+  - **Edge case testing** (invalid input handling, unregistered users).
+  - **Load testing** (ensuring performance stability under multiple users).
 
 ---
 
-## 🏁 Final Features & Testing (Planned Release)
+## 🏁 Final Features & Public Release
 
-- **Beta Testing:**  
-  - Gather and incorporate user feedback to fine-tune gameplay.
-- **Performance Optimization:**  
-  - Conduct a final review of API usage and bot performance.
-- **Final Documentation:**  
-  - Ensure all documentation, including the contributor guide, is comprehensive and up-to-date.
+- **Beta Testing:** Conduct a beta phase with real users to gather feedback.
+- **Performance Optimization:** Final review of API usage and bot performance.
+- **Final Documentation & Deployment:** Ensure the project is ready for public use.
