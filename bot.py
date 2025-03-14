@@ -116,6 +116,7 @@ current_choices = {}         # Stores the current adventure choices for each use
 
 player_stats = {}           # Dictionary to hold player stats and history
 PLAYER_FILE = "players.json"
+GRAVEYARD_FILE = "graveyard.json"
 
 def save_players():
     """
@@ -134,6 +135,23 @@ def load_players():
             player_stats = json.load(f)
     else:
         player_stats = {}
+
+def save_to_graveyard(user_id, character_data):
+    """
+    Saves deleted character data to a separate file (graveyard.json) before removing it from active play.
+    """
+    graveyard = {}
+
+    # Load existing graveyard data if the file exists
+    if os.path.exists(GRAVEYARD_FILE):
+        with open(GRAVEYARD_FILE, "r") as f:
+            graveyard = json.load(f)
+
+    # Save the deleted character
+    graveyard[user_id] = character_data
+
+    with open(GRAVEYARD_FILE, "w") as f:
+        json.dump(graveyard, f, indent=4)
 
 # Load player data when the bot starts
 load_players()
@@ -160,58 +178,256 @@ async def on_message(message):
     user_id = message.author.id
 
     # ----- PLAYER REGISTRATION: !register -----
+
+    # Predefined fantasy names, races, and classes for random generation
+    FANTASY_NAMES = [
+        "Aether", "Breeze", "Cinder", "Dawn", "Echo", "Frost", "Glimmer", "Haven",
+        "Ink", "Jade", "Kindle", "Lumen", "Mist", "Nova", "Onyx", "Pulse", "Quill",
+        "Rune", "Shade", "Tempest", "Umbra", "Veridian", "Whisper", "Xylos", "Yield",
+        "Zenith", "Amber", "Blaze", "Cascade", "Drift", "Ember", "Flare", "Gale",
+        "Horizon", "Iron", "Journey", "Keystone", "Lunar", "Mirage", "Nexus",
+        "Oracle", "Path", "Quartz", "Ripple", "Spark", "Twilight", "Unity",
+        "Vortex", "Wisp", "Xenon", "Yearn", "Zeal"
+    ]
+
+    RACES = [
+        "Dragonborn", "Dwarf", "Elf", "Gnome", "Half-Elf", "Halfling", "Half-Orc", "Human",
+        "Tiefling", "Aarakocra", "Aasimar", "Bugbear", "Centaur", "Changeling",
+        "Deep Gnome (Svirfneblin)", "Firbolg", "Genasi (Air)", "Genasi (Earth)",
+        "Genasi (Fire)", "Genasi (Water)", "Gith (Githyanki)", "Gith (Githzerai)",
+        "Goblin", "Goliath", "Grung", "Harengon", "Hobgoblin", "Kalashtar", "Kenku",
+        "Kobold", "Lizardfolk", "Loxodon", "Minotaur", "Orc", "Owlin", "Rabbitfolk",
+        "Reborn", "Satyr", "Sea Elf", "Shadar-kai", "Shifter", "Simic Hybrid", "Tabaxi",
+        "Tortle", "Triton", "Vedalken", "Verdan", "Warforged", "Yuan-ti Pureblood"
+    ]
+
+    CLASSES = [
+        "Barbarian", "Bard", "Cleric", "Druid", "Fighter", "Monk", "Paladin", "Ranger",
+        "Rogue", "Sorcerer", "Warlock", "Wizard", "Artificer"
+    ]
+
     if message.content.startswith("!register"):
         user_id_str = str(message.author.id)
+
         if user_id_str in player_stats:
             await message.channel.send("✅ You are already registered! Use `!stats` to view your stats.")
             return
 
-        # Generate random ability scores for a full D&D 5e character
+        # Step 1: Generate ability scores
         ability_scores = {
-            "Strength": random.randint(1, 20),
-            "Dexterity": random.randint(1, 20),
-            "Constitution": random.randint(1, 20),
-            "Intelligence": random.randint(1, 20),
-            "Wisdom": random.randint(1, 20),
-            "Charisma": random.randint(1, 20)
+            "Strength": random.randint(3, 18),
+            "Dexterity": random.randint(3, 18),
+            "Constitution": random.randint(3, 18),
+            "Intelligence": random.randint(3, 18),
+            "Wisdom": random.randint(3, 18),
+            "Charisma": random.randint(3, 18)
         }
-        # Calculate Constitution modifier using (Constitution - 10) // 2
+
+        # Calculate HP based on Constitution modifier
         con_modifier = (ability_scores["Constitution"] - 10) // 2
-        # Set HP to a base value (10) plus the Constitution modifier; ensure minimum HP is 1
         hp = max(10 + con_modifier, 1)
 
+        def format_ability_scores():
+            return (
+                f"💪 Strength: {ability_scores['Strength']}\n"
+                f"🏹 Dexterity: {ability_scores['Dexterity']}\n"
+                f"🛡️ Constitution: {ability_scores['Constitution']}\n"
+                f"🧠 Intelligence: {ability_scores['Intelligence']}\n"
+                f"👁️ Wisdom: {ability_scores['Wisdom']}\n"
+                f"🗣️ Charisma: {ability_scores['Charisma']}\n"
+                f"❤️ HP: {hp}"
+            )
+
+        await message.channel.send(
+            f"🎲 **Rolling your ability scores...**\n\n"
+            f"{format_ability_scores()}\n\n"
+            "💡 Now, what is your **character's name**?\n"
+            "Reply with a name or type **`random`** to generate one."
+        )
+
+        # Step 2: Choose Name
+        try:
+            def check(m):
+                return m.author == message.author and m.channel == message.channel
+
+            name_response = await client.wait_for("message", check=check, timeout=30.0)
+            character_name = name_response.content.strip().title() if name_response.content.lower() != "random" else random.choice(FANTASY_NAMES)
+
+        except asyncio.TimeoutError:
+            character_name = random.choice(FANTASY_NAMES)
+
+        await message.channel.send(
+            f"🏰 Great! Your character's name is **{character_name}**.\n"
+            "Now, choose a **race** or type **`random`** to get one."
+        )
+
+        # Step 3: Choose Race
+        try:
+            race_response = await client.wait_for("message", check=check, timeout=30.0)
+            character_race = race_response.content.strip().title() if race_response.content.lower() != "random" else random.choice(RACES)
+
+        except asyncio.TimeoutError:
+            character_race = random.choice(RACES)
+
+        await message.channel.send(
+            f"🌍 You have chosen **{character_race}** as your race.\n"
+            "Now, choose a **class** based on your ability scores above, or type **`random`** to get one."
+        )
+
+        # Step 4: Choose Class
+        try:
+            class_response = await client.wait_for("message", check=check, timeout=30.0)
+            character_class = class_response.content.strip().title() if class_response.content.lower() != "random" else random.choice(CLASSES)
+
+        except asyncio.TimeoutError:
+            character_class = random.choice(CLASSES)
+
+        await message.channel.send(
+            f"🎭 You are now **{character_name} the {character_race} {character_class}**!\n"
+            "Lastly, choose **3 skills** for proficiency from the following list:\n"
+            "`acrobatics, animal handling, arcana, athletics, deception, history, insight, intimidation, investigation, medicine, nature, perception, performance, persuasion, religion, sleight of hand, stealth, survival`"
+            "\nReply with **3 skills** separated by commas (e.g., `stealth, perception, athletics`)."
+        )
+
+        # Step 5: Choose Proficiencies
+        try:
+            response = await client.wait_for("message", check=check, timeout=60.0)
+            chosen_skills = [skill.strip().lower() for skill in response.content.split(",")]
+
+            if len(chosen_skills) != 3:
+                await message.channel.send("❌ Invalid selection! Restart `!register` and choose **exactly 3 skills**.")
+                return
+
+        except asyncio.TimeoutError:
+            await message.channel.send("⏳ Registration timed out! Run `!register` again.")
+            return
+
+        # Store player data
         player_stats[user_id_str] = {
+            "Name": character_name,
+            "Race": character_race,
+            "Class": character_class,
             **ability_scores,
             "HP": hp,
+            "proficiencies": chosen_skills,
             "history": []
         }
+
         save_players()
-        await message.channel.send(f"{message.author.mention}, you have been registered! Use `!stats` to view your attributes.")
+
+        await message.channel.send(
+            f"🎉 **Registration Complete!**\n"
+            f"🏰 **{character_name} the {character_race} {character_class}** has been created!\n"
+            "Use `!stats` to view your full character details!"
+        )
+
+    # ----- RESET PLAYER STATS: !reset -----
+    if message.content.startswith("!reset"):
+        user_id_str = str(message.author.id)
+
+        if user_id_str not in player_stats:
+            await message.channel.send("❌ You do not have a registered character to reset.")
+            return
+
+        await message.channel.send(
+            f"⚠️ {message.author.mention}, this will **permanently delete** your character! "
+            "If you'd like to proceed, type **`confirm`**. Type **`cancel`** to abort."
+        )
+
+        try:
+            def check(m):
+                return m.author == message.author and m.channel == message.channel
+
+            response = await client.wait_for("message", check=check, timeout=30.0)  # 30-second timeout
+            user_input = response.content.lower()
+
+            if user_input == "confirm":
+                # Save character to the graveyard before deleting
+                save_to_graveyard(user_id_str, player_stats[user_id_str])
+
+                # Delete character from active player stats
+                del player_stats[user_id_str]
+                save_players()
+
+                await message.channel.send(
+                    f"💀 Your character has been **deleted** and moved to the **Character Graveyard**.\n"
+                    "You can now use `!register` to start fresh!"
+                )
+        
+            elif user_input == "cancel":
+                await message.channel.send("❌ Character reset **canceled**. Your character remains intact.")
+
+            else:
+                await message.channel.send("❌ Invalid response! Reset **aborted**. Run `!reset` again if you still wish to delete your character.")
+
+        except asyncio.TimeoutError:
+            await message.channel.send("⏳ Reset request timed out. Your character remains intact.")
 
     # ----- VIEW PLAYER STATS: !stats -----
     elif message.content.startswith("!stats"):
         user_id_str = str(message.author.id)
+
         if user_id_str not in player_stats:
             await message.channel.send("❌ You are not registered! Use `!register` to create a character.")
             return
 
         stats = player_stats[user_id_str]
 
-        # Function to calculate the ability modifier
         def calc_modifier(score):
             return (score - 10) // 2
 
         stats_message = (
-            f"📜 **{message.author.name}'s Stats:**\n"
-            f"💪 Strength: {stats.get('Strength', 10)} (mod: {calc_modifier(stats.get('Strength', 10)):+})\n"
-            f"🏹 Dexterity: {stats.get('Dexterity', 10)} (mod: {calc_modifier(stats.get('Dexterity', 10)):+})\n"
-            f"🛡️ Constitution: {stats.get('Constitution', 10)} (mod: {calc_modifier(stats.get('Constitution', 10)):+})\n"
-            f"🧠 Intelligence: {stats.get('Intelligence', 10)} (mod: {calc_modifier(stats.get('Intelligence', 10)):+})\n"
-            f"👁️ Wisdom: {stats.get('Wisdom', 10)} (mod: {calc_modifier(stats.get('Wisdom', 10)):+})\n"
-            f"🗣️ Charisma: {stats.get('Charisma', 10)} (mod: {calc_modifier(stats.get('Charisma', 10)):+})\n"
-            f"❤️ HP: {stats.get('HP', 10)}"
+            f"🏰 **{stats.get('Name')} the {stats.get('Race')} {stats.get('Class')}**\n"
+            f"💪 Strength: {stats['Strength']} (mod: {calc_modifier(stats['Strength']):+})\n"
+            f"🏹 Dexterity: {stats['Dexterity']} (mod: {calc_modifier(stats['Dexterity']):+})\n"
+            f"🛡️ Constitution: {stats['Constitution']} (mod: {calc_modifier(stats['Constitution']):+})\n"
+            f"🧠 Intelligence: {stats['Intelligence']} (mod: {calc_modifier(stats['Intelligence']):+})\n"
+            f"👁️ Wisdom: {stats['Wisdom']} (mod: {calc_modifier(stats['Wisdom']):+})\n"
+            f"🗣️ Charisma: {stats['Charisma']} (mod: {calc_modifier(stats['Charisma']):+})\n"
+            f"❤️ HP: {stats['HP']}\n"
+            f"🎖️ Proficiencies: {', '.join(stats['proficiencies']).title()}"
         )
+
         await message.channel.send(stats_message)
+
+    # ----- VIEW PAST PLAYER CHARACTERS: !graveyard -----
+    elif message.content.startswith("!graveyard"):
+        user_id_str = str(message.author.id)
+
+        # Check if the graveyard file exists
+        if not os.path.exists(GRAVEYARD_FILE):
+            await message.channel.send("💀 The Character Graveyard is empty. No past characters found.")
+            return
+
+        # Load graveyard data
+        with open(GRAVEYARD_FILE, "r") as f:
+            graveyard = json.load(f)
+
+        if user_id_str not in graveyard:
+            await message.channel.send("💀 You have no past characters in the Graveyard.")
+            return
+
+        # Retrieve the past character
+        past_character = graveyard[user_id_str]
+
+        def calc_modifier(score):
+            return (score - 10) // 2
+
+        # Format the character's info
+        graveyard_message = (
+            f"🕯️ **Past Character Found!**\n"
+            f"🏰 **{past_character.get('Name')} the {past_character.get('Race')} {past_character.get('Class')}**\n"
+            f"💪 Strength: {past_character['Strength']} (mod: {calc_modifier(past_character['Strength']):+})\n"
+            f"🏹 Dexterity: {past_character['Dexterity']} (mod: {calc_modifier(past_character['Dexterity']):+})\n"
+            f"🛡️ Constitution: {past_character['Constitution']} (mod: {calc_modifier(past_character['Constitution']):+})\n"
+            f"🧠 Intelligence: {past_character['Intelligence']} (mod: {calc_modifier(past_character['Intelligence']):+})\n"
+            f"👁️ Wisdom: {past_character['Wisdom']} (mod: {calc_modifier(past_character['Wisdom']):+})\n"
+            f"🗣️ Charisma: {past_character['Charisma']} (mod: {calc_modifier(past_character['Charisma']):+})\n"
+            f"❤️ HP: {past_character['HP']}\n"
+            f"🎖️ Proficiencies: {', '.join(past_character['proficiencies']).title()}"
+        )
+
+        await message.channel.send(graveyard_message)
 
     # ----- VIEW PLAYER SKILLS: !skills -----
     elif message.content.startswith("!skills"):

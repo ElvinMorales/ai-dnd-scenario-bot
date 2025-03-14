@@ -1,0 +1,20 @@
+{
+    "140317364943060992": {
+        "Name": "Ink",
+        "Race": "Deep Gnome (Svirfneblin)",
+        "Class": "Warlock",
+        "Strength": 12,
+        "Dexterity": 16,
+        "Constitution": 11,
+        "Intelligence": 17,
+        "Wisdom": 6,
+        "Charisma": 3,
+        "HP": 10,
+        "proficiencies": [
+            "investigation",
+            "medicine",
+            "stealth"
+        ],
+        "history": []
+    }
+}
