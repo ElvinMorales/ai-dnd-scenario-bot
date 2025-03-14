@@ -30,6 +30,13 @@ An AI-powered Discord bot that generates dynamic D&D adventure scenarios, blendi
   - **`!skill <skill_name>`** → Rolls a skill check with the corresponding ability modifier.
   - **`!skills`** → Displays the full list of skills and their linked abilities.
 
+### **4. Character Management & Customization**
+- Players can now **choose Name, Race, and Class** during `!register`.
+- **Ability scores are displayed before class selection** to help players make better choices.
+- Implemented `!reset` → Allows players to delete and re-register.
+- Implemented `!graveyard` → Lets players retrieve past deleted characters.
+
+
 ---
 ## 🚀 In Progress (Immediate Next Steps)
 
@@ -37,9 +44,14 @@ An AI-powered Discord bot that generates dynamic D&D adventure scenarios, blendi
 - **Task:** Implement proficiency bonuses so players who are proficient in certain skills gain an additional bonus when rolling skill checks.
 - **Estimated Timeline:** 1 week.
 
-### **2. Expanded Documentation & Code Optimization**
+### **2. Expanding `!graveyard`**
+- **Task:** Modify `!graveyard` to store multiple past characters instead of just the most recent one.
+- **Estimated Timeline:** Future update.
+
+### **3. Expanded Documentation & Code Optimization**
 - **Task:** Refine the bot’s documentation, particularly covering decision tracking and how skills function.
 - **Estimated Timeline:** Ongoing, with updates scheduled alongside new features.
+
 ---
 
 ## 🛠 Planned Enhancements (Future Features)
